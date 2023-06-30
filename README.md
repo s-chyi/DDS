@@ -53,7 +53,7 @@ UDP Socket Worker Thread 的部份則是單純去檢查監聽的 Socket 是否�
 
 以windows系統操作無人機地面站(Q ground control)，Ubuntu模擬無人機飛行與飛控板控制，樹梅派傳輸fpv即時影像，系統在LAN中實現，使Q ground control與飛控板可以雙向溝通，系統架構圖如下。
 
-![mav_ub.png](Data%20Distribution%20Service%E8%B3%87%E6%96%99%E5%82%B3%E8%BC%B8%20c742a7d2a93f43deb2b8280604cd2191/mav_ub.png)
+![mav_ub](https://github.com/s-chyi/DDS/assets/132654632/5fdea010-cee8-4092-a781-f7bd2ec24ffd)
 
 1. Windows(飛控介面):
     - DDS傳輸mavlink控制命令&接收無人機狀態
