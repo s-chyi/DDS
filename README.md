@@ -86,7 +86,7 @@ UDP Socket Worker Thread 的部份則是單純去檢查監聽的 Socket 是否�
     - 以maxproxy建立DDS與飛控板的mavlink通道
     - 使用PX4與jmavsim模擬無人機飛行畫面與控制
 
-[![uav_dds](Data%20Distribution%20Service%E8%B3%87%E6%96%99%E5%82%B3%E8%BC%B8%20c742a7d2a93f43deb2b8280604cd2191/uav_dds.png)](https://youtu.be/NC8ULOcJn54)
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/NC8ULOcJn54/0.jpg)](https://youtu.be/NC8ULOcJn54)
 
 ## DDS資料傳輸測試
 
@@ -117,6 +117,18 @@ UDP Socket Worker Thread 的部份則是單純去檢查監聽的 Socket 是否�
     
     將Rpi連限制相同網域中，執行proxy於背景，另開新終端機使用nc指令傳送/監聽port資料。
     
+
+
+https://github.com/s-chyi/resume/assets/132654632/11b58037-750e-43cf-a9aa-16066d7a6d21
+
+
+https://github.com/s-chyi/resume/assets/132654632/4f89c559-aee2-4707-a967-f6b3e7f53e9d
+
+
+https://github.com/s-chyi/resume/assets/132654632/aff612e3-ba68-42ce-a5a4-16e70165d1c0
+
+
+
 
 ### 影像串流傳輸
 
@@ -172,3 +184,6 @@ UDP Socket Worker Thread 的部份則是單純去檢查監聽的 Socket 是否�
     rtpjitterbuffer ! rtph264depay ! video/x-h264,stream-format=byte-stream,alignment=nal ! 
     h264parse ! avdec_h264 ! videoconvert ! fpsdisplaysink
     ```
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/q_44d48UKtc/0.jpg)](https://youtu.be/q_44d48UKtc)
+
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/xSobP4yC1Uc/0.jpg)](https://youtu.be/xSobP4yC1Uc)
