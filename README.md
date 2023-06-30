@@ -25,12 +25,6 @@ DDS架構具有以下優點：
 
 ## 主程式流程
 
-本專案主要作為 DDS Proxy 幫忙代收轉傳的工作，因為程式流程可以透過**幫忙 Publish 資料**的程式流程與**幫忙 Subscribe 資料**這兩個部份來說明。
-
-### Publish 資料
-
-本章節將介紹 DDS Proxy 如何作為 DDS Publisher ，將應用程式透過 IP/Port 發送給 DDS Proxy 的資料 Publish 出去。
-
 確認設定檔內容後就可以執行 DDS Proxy，執行後根據設定檔內容，主程式會產生一個 Proxy Worker thread，這個 Worker 程式中稱為 UDP DDS worker。此時主程式就會進入到一個無窮迴圈中並且進行列印 keep-alive 訊息讓執行者確認程式運作狀態。
 
 UDP DDS worker thread 則是開始進行初始化動作，該動作包含有：
@@ -38,22 +32,9 @@ UDP DDS worker thread 則是開始進行初始化動作，該動作包含有：
 - 初始化 DDS: 根據設定建立 DDS Publisher, Subscriber, Data Reader, Data Writer,與設定相對應的 QoS 參數。
 - 初始化 Socket: 根據設定建立 Worker 監聽與發送資料的 socket，並設定相關的 socket 參數
 
-初始化完成後，為了提昇效能（但是會增加 CPU 使用率），DDS Proxy 程式會將 Publish 功能的下述兩個部份分開執行
-
-1. 接收應用程式來的資料與
-2. 透過 DDS Publisher 把收到資料 Publish 出去
-
-故 UDP DDS worker 會在產生一個 UDP Socket Worker Thread 來處理前述**接收應用程式來的資料的部份**。 Proxy Worker thread 產生 UDP Socket Worker Thread 後，就會進入一個無窮迴圈中，開始檢查資料 Buffer 內是否有資料，如果有就進行 Publish 的動作。**注意，產生 UDP Socket Worker Thread 並非必須**，如果沒有獨立使用 Socket Worker Thread，那原本的無窮迴圈會變成檢查 Socket 是否有來自應用程式的資料，如果有有就進行 Publish 的動作。
+Proxy Worker thread 產生 UDP Socket Worker Thread 後，就會進入一個無窮迴圈中，開始檢查資料 Buffer 內是否有資料，如果有就進行 Publish 的動作。
 
 UDP Socket Worker Thread 的部份則是單純去檢查監聽的 Socket 是否有收到資料，如果有就去尋找空的資料 buffer，並且把資料放入 Buffer 之中。
-
-上述流程只是一個 DDS Proxy worker 於 Publish 端進行的行為，如果選擇了執行兩個或是三個 Proxy Workers，則以上的動作都會在重複進行兩次或是三次。
-
-### Subscribe 資料
-
-同樣的執行 DDS Proxy 後，根據設定檔內容，主程式一樣也是產生一個 Proxy Worker thread 並開始進行初始化動作，初始化動作如Publish 資料一樣的運作方式。
-
-初始化完成後，主程式已經初始化一個 DDS Subscriber，這個 DDS Subscriber 將使用 DDS 官方 Library 提供之相關函數針對所設定的 Subscribe Topic 進行監聽 DDS 資料的動作。當發現有資料時，`on_data_available`函數會被呼叫來取得 Publisher 端發送的資料。收到資料後，我們就把資料透過初始階段的 `Socket` 快速的將資料發送給應用程式端。
 
 ## 系統架構
 
@@ -101,23 +82,6 @@ UDP Socket Worker Thread 的部份則是單純去檢查監聽的 Socket 是否�
 
 ### 文字傳輸
 
-1. windows
-    
-    執行專案，與proxy於背景代傳資料，使用python的socket向指定port傳輸資料，proxy會自動將資料pub到domain中；或以socket接收指定port的資料，當訂閱的topic有資料更新時，proxy會自動將資料sub至port中。
-    
-2. ubuntu
-    
-    需將VM的網路卡設置為橋接介面卡，使VM在網域中有獨立的ip，接著執行proxy於背景，另開新終端機使用nc指令傳送/監聽port資料。
-    
-    ```powershell
-    nc -> udp_pub -> udp_sub -> nc (listen)
-    ```
-    
-3. Rpi
-    
-    將Rpi連限制相同網域中，執行proxy於背景，另開新終端機使用nc指令傳送/監聽port資料。
-    
-
 
 https://github.com/s-chyi/resume/assets/132654632/11b58037-750e-43cf-a9aa-16066d7a6d21
 
@@ -132,58 +96,7 @@ https://github.com/s-chyi/resume/assets/132654632/aff612e3-ba68-42ce-a5a4-16e701
 
 ### 影像串流傳輸
 
-1. windows
-    
-    執行專案，與proxy於背景代傳資料，另開新終端機執行下列指令。
-    
-    - pub gstreamer h.264 video
-    
-    ```powershell
-    gst-launch-1.0.exe -v ksvideosrc do-stats=TRUE ! videoconvert ! 
-    x264enc speed-preset=superfast tune=zerolatency ! rtph264pay ! 
-    udpsink host=127.0.0.1 port=(指定的local port)
-    ```
-    
-    - sub gstreamer h.264 video
-    
-    ```powershell
-    gst-launch-1.0.exe -v udpsrc port=(指定的peer port) ! application/x-rtp, payload=96 ! 
-    rtpjitterbuffer ! rtph264depay ! video/x-h264,stream-format=byte-stream,alignment=nal ! 
-    h264parse ! avdec_h264 ! videoconvert ! fpsdisplaysink
-    ```
-    
-2. ubuntu
-    
-    執行proxy於背景，另開新終端機執行下列指令，VM中無法擷取實體攝影機，因此僅能接收。
-    
-    - sub gstreamer h.264 video
-    
-    ```powershell
-    gst-launch-1.0 -v udpsrc port=(指定的peer port) ! application/x-rtp, payload=96 ! 
-    rtpjitterbuffer ! rtph264depay ! video/x-h264,stream-format=byte-stream,alignment=nal ! 
-    h264parse ! avdec_h264 ! videoconvert ! fpsdisplaysink
-    ```
-    
-3. Rpi
-    
-    執行proxy於背景，另開新終端機執行下列指令。
-    
-    - pub gstreamer h.264 video
-    
-    ```powershell
-    gst-launch-1.0 -vv -e v4l2src device=/dev/video0 ! 
-    video/x-raw, format=YUY2, width=1280, height=720 ! videoconvert ! 
-    x264enc tune=zerolatency bitrate=700 speed-preset=superfast ! 
-    rtph264pay mtu=100 config-interval=1 ! udpsink host=127.0.0.1 port=(指定的local port)
-    ```
-    
-    - sub gstreamer h.264 video
-    
-    ```powershell
-    gst-launch-1.0 -v udpsrc port=(指定的peer port) ! application/x-rtp, payload=96 ! 
-    rtpjitterbuffer ! rtph264depay ! video/x-h264,stream-format=byte-stream,alignment=nal ! 
-    h264parse ! avdec_h264 ! videoconvert ! fpsdisplaysink
-    ```
+
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/q_44d48UKtc/0.jpg)](https://youtu.be/q_44d48UKtc)
 
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/xSobP4yC1Uc/0.jpg)](https://youtu.be/xSobP4yC1Uc)
