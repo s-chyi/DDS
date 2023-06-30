@@ -86,6 +86,8 @@ UDP Socket Worker Thread 的部份則是單純去檢查監聽的 Socket 是否�
     - 以maxproxy建立DDS與飛控板的mavlink通道
     - 使用PX4與jmavsim模擬無人機飛行畫面與控制
 
+[![uav_dds](Data%20Distribution%20Service%E8%B3%87%E6%96%99%E5%82%B3%E8%BC%B8%20c742a7d2a93f43deb2b8280604cd2191/uav_dds.png)](https://youtu.be/NC8ULOcJn54)
+
 ## DDS資料傳輸測試
 
 可於內網LAN中測試，測試設備可以下列方式組合
